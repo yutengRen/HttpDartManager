@@ -1,0 +1,47 @@
+﻿<div class="layui-form" lay-filter="layuiadmin-refund-form-list" id="layuiadmin-refund-form-list" style="padding: 20px 30px 0 0;">
+    <div class="layui-form-item">
+        <label class="layui-form-label">微信昵称</label>
+        <div class="layui-input-inline">
+            <script type="text/html" template>
+                <input type="text" name="nickname" value="{{ d.params.nickname || '' }}" lay-verify="required" placeholder="微信昵称" autocomplete="off" class="layui-input">
+            </script>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">支付金额</label>
+        <div class="layui-input-inline">
+            <script type="text/html" template>
+                <input type="text" name="payPrice" value="{{ d.params.price || '' }}" lay-verify="required" placeholder="" autocomplete="off" class="layui-input">
+            </script>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">订单号</label>
+        <div class="layui-input-inline">
+            <script type="text/html" template>
+                <input type="text" name="orderno" value="{{ d.params.orderno || '' }}" lay-verify="required" placeholder="" autocomplete="off" class="layui-input">
+            </script>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">退款金额</label>
+        <div class="layui-input-inline">
+            <script type="text/html" template>
+                <input type="text" name="refundMoney" lay-verify="required" placeholder="" autocomplete="off" class="layui-input">
+            </script>
+        </div>
+    </div>
+
+    <script type="text/html" template>
+        <input type="hidden" name="id" value="{{ d.params.id || '' }}">
+    </script>
+    <div class="layui-form-item">
+        <label class="layui-form-label"></label>
+        <div class="layui-input-inline">
+            <input type="button" lay-submit lay-filter="layuiadmin-refund-form-submit" value="确认" class="layui-btn">
+        </div>
+    </div>
+</div>

@@ -1,0 +1,163 @@
+﻿
+
+<title>机器管理</title>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>机器管理</cite></a>
+        <a><cite>网站用户</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="layadmin-userfront-formlist">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">游戏名</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="gamename" placeholder="请输入" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button class="layui-btn layuiadmin-btn-useradmin" lay-submit lay-filter="LAY-user-front-search">
+                        <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-card-body">
+            <div style="padding-bottom: 10px;">
+                <button class="layui-btn layuiadmin-btn-useradmin" data-type="batchdel">删除</button>
+                <button class="layui-btn layuiadmin-btn-useradmin" data-type="add">添加</button>
+            </div>
+
+            <table id="gamelist" lay-filter="gamelist"></table>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use(['admin', 'useradmin', 'table'], function () {
+        var $ = layui.$
+        , admin = layui.admin
+        , view = layui.view
+        , table = layui.table
+        , form = layui.form;
+
+        //监听搜索
+        form.on('submit(LAY-user-front-search)', function (data) {
+            var field = data.field;
+
+            //执行重载
+            table.reload('gamelist', {
+                where: field
+            });
+        });
+
+        var url = '../dist/Handler/managerDate.ashx';
+
+        //事件
+        var active = {
+            batchdel: function () {
+                var checkStatus = table.checkStatus('gamelist')
+                , checkData = checkStatus.data; //得到选中的数据
+
+                if (checkData.length === 0) {
+                    return layer.msg('请选择数据');
+                }
+
+                layer.confirm('确定删除吗？', function (index) {
+                    var parms = {};
+                    parms.action = "deleteGameName";
+                    parms.data = JSON.stringify(checkStatus.data);
+
+                    $.post(url, parms, function (data) {
+                        if (data != null) {
+                            if (data.Success) {
+                                layer.msg(data.Msg);
+                                //执行重载
+                                table.reload('gamelist', {
+                                });
+                            }
+                            else {
+                                layer.msg(data.Msg);
+                            }
+                        }
+                        else {
+                            layer.msg("操作失败：数据为空");
+                        }
+                    }, "json");
+
+                    table.reload('gamelist');
+                });
+            }
+          , add: function () {
+              admin.popup({
+                  title: '添加游戏'
+                , area: ['500px', '450px']
+                , id: 'LAY-popup-user-add'
+                , success: function (layero, index) {
+                    view(this.id).render('gameManager/gamefrom').done(function () {
+                        form.render(null, 'layuiadmin-form-useradmin');
+
+                        //监听提交
+                        form.on('submit(LAY-user-front-submit)', function (data) {
+                            var parms = data.field;
+                            parms.action = "addGameName";
+                            $.post(url, parms, function (data) {
+                                if (data != null) {
+                                    if (data.Success) {
+                                        layer.msg(data.Msg);
+                                        layer.close(index); //执行关闭
+
+                                        //执行重载
+                                        table.reload('gamelist', {
+                                        });
+                                    }
+                                    else {
+                                        layer.msg("添加失败：" + data.Msg);
+                                    }
+                                }
+                                else {
+                                    layer.msg("添加失败：数据为空");
+                                }
+                            }, "json");
+                            return false;
+                        });
+                    });
+                }
+              });
+          }
+        };
+
+        layui.use('table', function () {
+            var tableUrl = '../dist/Handler/managerDate.ashx';
+            var table = layui.table;
+
+            var dicFlag = { 0: "正常", 1: "失效" }//字典
+
+            table.render({
+                elem: '#gamelist'
+                , url: tableUrl
+                , page: true
+                , where: { action: 'getGameNameList' }
+                , cols: [[
+                { type: 'checkbox' }
+                , { field: 'id', width: 80, title: 'ID', sort: true }
+                , { field: 'gameName', title: '游戏名称' }
+                , { field: 'typeName', title: '种类名称' }
+                ]]
+                
+            });
+        });
+
+        $('.layui-btn.layuiadmin-btn-useradmin').on('click', function () {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+    });
+</script>

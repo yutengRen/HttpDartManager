@@ -1,0 +1,93 @@
+﻿<form class="layui-form" action="" lay-filter="example">
+    <div style="padding: 20px; background-color: #F2F2F2;">
+        <div class="layui-row layui-col-space15">
+            <div class="layui-col-md6">
+                <div class="layui-card">
+                    <div class="layui-card-header">押金设置</div>
+                    <div class="layui-card-body">
+                        <div class="layui-form" lay-filter="layuiadmin-form-useradmin" style="padding: 20px;">
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">游戏金额</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="gameMoney" lay-verify="required" placeholder="请输入游戏的金额" autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+
+                            <div class="layui-form-item">
+                                <label class="layui-form-label">一根飞镖押金金额</label>
+                                <div class="layui-input-block">
+                                    <input type="text" name="biaoMoney" lay-verify="required" placeholder="请输入一根飞镖押金的金额" autocomplete="off" class="layui-input">
+                                </div>
+                            </div>
+
+                            <div class="layui-form-item">
+                                <label class="layui-form-label"></label>
+                                <div class="layui-input-inline">
+                                    <input type="button" lay-submit lay-filter="LAY-user-front-submit" value="确认" class="layui-btn">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</form>
+
+<script>
+    layui.use(['form'], function () {
+        var $ = layui.$
+        , form = layui.form
+            , setter = layui.setter
+        , table = layui.table
+        , router = layui.router()
+        , search = router.search;
+
+        var url = '../dist/Handler/managerDate.ashx';
+
+        //监听提交
+        form.on('submit(LAY-user-front-submit)', function (data) {
+            var parms = data.field;
+            parms.action = "addGameSetting";
+            $.post(url, parms, function (data) {
+                if (data != null) {
+                    if (data.Success) {
+                        layer.msg(data.Msg);
+                    }
+                    else {
+                        layer.msg("添加失败：" + data.Msg);
+                    }
+                }
+                else {
+                    layer.msg("添加失败：数据为空");
+                }
+            }, "json");
+            return false;
+        });
+
+        function getDeposit() {
+            var parms = {};
+            parms.action = "getDeposit";
+            $.post(url, parms, function (data) {
+                if (data != null) {
+                    if (data.Success) {
+                        //表单初始赋值
+                        form.val('example', {
+                            "gameMoney": data.GameMoney * 100
+                            , "biaoMoney": data.DepositMoney * 100
+                        })
+                    }
+                    else {
+                        //layer.msg("添加失败：" + data.Msg);
+                    }
+                }
+                else {
+                    //layer.msg("添加失败：数据为空");
+                }
+            }, "json");
+        }
+
+        getDeposit();
+    })
+</script>

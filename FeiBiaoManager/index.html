@@ -1,0 +1,181 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1,IE=edge">
+    <meta charset="UTF-8">
+    <title>后台管理</title>
+    <meta name="renderer" content="webkit">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <!-- load css -->
+    <link rel="stylesheet" type="text/css" href="/common/layui/css/layui.css" media="all">
+    <link rel="stylesheet" type="text/css" href="/common/global.css" media="all">
+    <link rel="stylesheet" type="text/css" href="/css/adminstyle.css" media="all">
+</head>
+<body>
+    <div class="layui-layout layui-layout-admin" id="layui_layout">
+        <!-- 顶部区域 -->
+        <div class="layui-header header header-demo">
+            <div class="layui-main">
+                <!-- logo区域 -->
+                <div class="admin-logo-box">
+                    <a class="logo" href="#" title="logo">主页
+                    <div class="larry-side-menu">
+                        <i class="fa fa-bars" aria-hidden="true"></i>
+                    </div>
+                </div>
+                <!-- 顶级菜单区域 -->
+                <!--<div class="layui-larry-menu">
+                    <ul class="layui-nav clearfix">
+                        <li class="layui-nav-item layui-this">
+                            <a href="javascirpt:;"><i class="iconfont icon-xitongguanli1"></i>管理中心</a>
+                        </li>
+                    </ul>
+                </div>-->
+                <!-- 右侧导航 -->
+                <ul class="layui-nav larry-header-item">
+                    <li class="layui-nav-item">
+                        <a href="javascript:;">
+                            当前登录用户：<span id="username"></span>
+                        </a>
+                    </li>
+
+                    <li class="layui-nav-item">
+                        <a href="javascript:;" onclick="loginOut();">
+                            <i class="iconfont icon-exit"></i>
+                            退出</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- 左侧侧边导航开始 -->
+        <div class="layui-side layui-side-bg layui-larry-side" id="larry-side">
+            <div class="layui-side-scroll" id="larry-nav-side" lay-filter="side">
+                <div class="user-photo">
+                    <a class="img" title="我的头像">
+                        <img src="images/user.jpg" class="userimg1"></a>
+                    <p id="loginName">你好！, 欢迎登录</p>
+                </div>
+                <!-- 左侧菜单 -->
+                <ul class="layui-nav layui-nav-tree">
+                    <li class="layui-nav-item layui-this">
+                        <a href="javascript:;" data-url="manager.html">
+                            <i class="iconfont icon-home1" data-icon='icon-home1'></i>
+                            <span>首页</span>
+                        </a>
+                    </li>
+
+                    <!-- 系统管理 -->
+                    <li class="layui-nav-item">
+                        <a href="javascript:;">
+                            <i class="iconfont"></i>
+                            <span>我的游戏</span>
+                            <em class="layui-nav-more"></em>
+                        </a>
+                        <dl class="layui-nav-child">
+                            <dd>
+                                <a href="javascript:;" data-url="/Pages/chooseList.html">
+                                    <i class="iconfont"></i>
+                                    <span>已选列表</span>
+                                </a>
+                            </dd>
+                            <dd>
+                                <a href="javascript:;" data-url="regesit.html">
+                                    <i class="iconfont"></i>
+                                    <span>注册用户</span>
+                                </a>
+                            </dd>
+                        </dl>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 左侧侧边导航结束 -->
+        <!-- 右侧主体内容 -->
+        <div class="layui-body" id="larry-body" style="bottom: 0; border-left: solid 2px #1AA094;">
+            <div class="layui-tab layui-tab-card larry-tab-box" id="larry-tab" lay-filter="demo" lay-allowclose="true">
+                <ul class="layui-tab-title">
+                    <li class="layui-this" id="admin-home"><i class="iconfont icon-diannao1"></i><em>首页</em></li>
+                </ul>
+                <div class="layui-tab-content" style="min-height: 150px;">
+                    <div class="layui-tab-item layui-show">
+                        <iframe class="larry-iframe" data-id='0' src="manager.html"></iframe>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <!-- 底部区域 -->
+        <!--<div class="layui-footer layui-larry-foot" id="larry-footer">
+            <div class="layui-mian">
+                <p class="p-admin">
+                    <span>2018 &copy;</span>
+                    <a href="#">欧通宝</a>. 版权所有		    	
+                </p>
+            </div>
+        </div>-->
+    </div>
+    <!-- 加载js文件-->
+    <script type="text/javascript" src="/common/layui/layui.js"></script>
+    <!--<script type="text/javascript" src="/PageJs/SysConfig.js"></script>-->
+    <script type="text/javascript" src="/js/larry.js"></script>
+    <script type="text/javascript" src="/js/index.js"></script>
+    <!-- 锁屏 -->
+    <div class="lock-screen" style="display: none;">
+        <div id="locker" class="lock-wrapper">
+            <div id="time"></div>
+            <div class="lock-box center">
+                <img src="images/userimg.jpg" alt="">
+                <h1>admin</h1>
+                <duv class="form-group col-lg-12">
+				<input type="password" placeholder='锁屏状态，请输入密码解锁' id="lock_password" class="form-control lock-input" autofocus name="lock_password">
+				<button id="unlock" class="btn btn-lock">解锁</button>
+			</duv>
+            </div>
+        </div>
+    </div>
+    <!-- 菜单控件 -->
+    <!-- <div class="larry-tab-menu">
+	<span class="layui-btn larry-test">刷新</span>
+</div> -->
+    <!-- iframe框架刷新操作 -->
+    <!-- <div id="refresh_iframe" class="layui-btn refresh_iframe">刷新</div> -->
+
+    <script>
+
+        layui.use(['jquery', 'form'], function () {
+            window.jQuery = window.$ = layui.jquery;
+            window.layer = layui.layer;
+            var form = layui.form();
+
+            $(document).ready(function () {
+                var localTest = layui.data('user');
+                if (localTest.username == "" || localTest.username == null || localTest.username == undefined) {
+                    window.location.href = "/login.html";
+                }
+                else {
+                    var name = localTest.username;
+                    $("#username").html(name);
+                }
+            })
+
+            
+        });
+
+        function loginOut() {
+            var localTest = layui.data('user');
+            //localTest.username = null;
+            layui.data('user', {
+                key: 'username', remove: true
+            });
+            window.location.reload();
+        }
+        
+    </script>
+</body>
+</html>

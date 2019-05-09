@@ -1,0 +1,115 @@
+﻿
+
+<title>机器管理</title>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>机器管理</cite></a>
+        <a><cite>网站用户</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="layadmin-userfront-formlist">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">游戏种类id</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="TypeIdss" placeholder="请输入" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">用户名</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="username" placeholder="请输入" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">机器id</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="machineids" placeholder="请输入" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <label class="layui-form-label">昵称</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="nickname" placeholder="请输入" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-inline">
+                    <button class="layui-btn layuiadmin-btn-useradmin" lay-submit lay-filter="LAY-user-front-search">
+                        <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                    </button>
+                </div>
+
+                <div class="layui-inline">
+                    <button class="layui-btn layuiadmin-btn-useradmin" lay-submit lay-filter="test">
+                        <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                        测试支付
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        
+    </div>
+</div>
+
+<script>
+    layui.use(['admin', 'table'], function () {
+        var $ = layui.$
+        , admin = layui.admin
+        , view = layui.view
+        , table = layui.table
+        , form = layui.form;
+
+        //监听搜索
+        form.on('submit(LAY-user-front-search)', function (data) {
+            var url = '../dist/Handler/managerDate.ashx';
+            var parms = {};
+            parms = data.field;
+            parms.action = "addGame";
+            $.post(url, parms, function (data) {
+                if (data != null) {
+                    if (data.Success) {
+                        layer.msg(data.Msg);
+                    }
+                    else {
+                        layer.msg("添加失败");
+                    }
+                }
+                else {
+                    layer.msg("数据为空");
+                }
+            }, "json");
+        });
+
+        form.on('submit(test)', function (data) {
+            var url = '../dist/Handler/weChatPay.ashx';
+            var parms = {};
+            parms = data.field;
+            parms.action = "pay";
+            $.post(url, parms, function (data) {
+                if (data != null) {
+                    if (data.Success) {
+                        layer.msg(data.Msg);
+                    }
+                    else {
+                        layer.msg("添加失败");
+                    }
+                }
+                else {
+                    layer.msg("数据为空");
+                }
+            }, "json");
+        });
+    });
+</script>
+
+

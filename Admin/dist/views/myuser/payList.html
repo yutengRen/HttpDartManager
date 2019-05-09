@@ -1,0 +1,127 @@
+﻿<title>支付记录</title>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>支付记录</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="layadmin-userfront-formlist">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">微信昵称</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="nickname" placeholder="请输入" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button class="layui-btn layuiadmin-btn-useradmin" lay-submit lay-filter="LAY-user-front-search">
+                        <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-card-body">
+            <table class="layui-hide" id="payList" lay-filter="payList"></table>
+
+            <script type="text/html" id="table-content-list">
+                <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="refund"><i class="layui-icon layui-icon-edit"></i>退还</a>
+            </script>
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use('useradmin', layui.factory('useradmin')).use(['admin', 'useradmin', 'table'], function () {
+        var $ = layui.$
+        , admin = layui.admin
+        , view = layui.view
+        , table = layui.table
+        , form = layui.form;
+
+        var url = '../dist/Handler/managerDate.ashx';
+
+        table.on('tool(payList)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'refund') {
+                //layer.confirm('确定退还？', function (index) {
+                //    obj.del();
+                //    layer.close(index);
+                //});
+
+                admin.popup({
+                    title: '退还费用'
+                  , area: ['550px', '550px']
+                  , id: 'LAY-popup-content-debug'
+                  , success: function (layero, index) {
+                      view(this.id).render('myuser/refundForm', data).done(function () {
+                          form.render(null, 'layuiadmin-refund-form-list');
+
+                          //监听提交
+                          form.on('submit(layuiadmin-refund-form-submit)', function (data) {
+                              var field = data.field; //获取提交的字段
+                              field.action = "adminRefund";
+                              var refundUrl = '../dist/Handler/weChatPay.ashx';
+                              $.post(refundUrl, field, function (data) {
+                                  if (data != null) {
+                                      if (data.Success) {
+                                          layer.msg(data.Msg);
+                                          table.reload('payList');
+                                          layer.close(index); //执行关闭 
+                                      }
+                                      else {
+                                          layer.msg(data.Msg);
+                                      }
+                                  }
+                                  else {
+                                      layer.msg("操作失败：数据为空");
+                                  }
+                              }, "json");
+                          });
+                      });
+                  }
+                });
+            }
+            else {
+                layer.msg("没有对应的内容");
+            }
+        });
+
+        layui.use('table', function () {
+            var tableUrl = '../dist/Handler/managerDate.ashx';
+            var table = layui.table;
+            var dicFlag = { 0: "已退", 1: "未退" }//字典
+
+            table.render({
+                elem: '#payList'
+                , url: tableUrl
+                , where: { action: 'getPayList' }
+                , cols: [[
+                { type: 'checkbox' }
+                , { field: 'id', width: 80, title: 'ID', sort: true }
+                , { field: 'nickname', title: '微信昵称' }
+                , { field: 'gameName', title: '游戏名' }
+                , { field: 'time', title: '选择时间' }
+                , { field: 'price', width: 80, title: '金额' }
+                , { field: 'orderno', title: '订单号' }
+                , {
+                    field: 'refundState', width: 80, title: '退还状态', templet: function (d) {
+                        return dicFlag[d.refundState]
+                    }
+                }
+                , { title: '操作', width: 150, align: 'center', fixed: 'right', toolbar: '#table-content-list' }
+                ]]
+                , page: true
+            });
+        });
+
+        $('.layui-btn.layuiadmin-btn-useradmin').on('click', function () {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+    });
+</script>

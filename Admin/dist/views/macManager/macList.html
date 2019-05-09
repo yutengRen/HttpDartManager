@@ -1,0 +1,258 @@
+﻿
+
+<title>机器管理</title>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>机器管理</cite></a>
+        <a><cite>网站用户</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="layadmin-userfront-formlist">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">机器地址</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="address" placeholder="请输入" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">机器编号</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="machineNum" placeholder="请输入" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button class="layui-btn layuiadmin-btn-useradmin" lay-submit lay-filter="LAY-user-front-search">
+                        <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-card-body">
+            <div style="padding-bottom: 10px;">
+                <button class="layui-btn layuiadmin-btn-useradmin" data-type="batchdel">删除</button>
+                <button class="layui-btn layuiadmin-btn-useradmin" data-type="add">添加</button>
+            </div>
+
+            <table id="maclist" lay-filter="maclist"></table>
+
+            <script type="text/html" id="table-content-list">
+                <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="debug"><i class="layui-icon layui-icon-delete"></i>调试</a>
+            </script>
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use('useradmin', layui.factory('useradmin')).use(['admin', 'useradmin', 'table'], function () {
+        var $ = layui.$
+        , admin = layui.admin
+        , view = layui.view
+        , table = layui.table
+        , form = layui.form;
+
+        //监听搜索
+        form.on('submit(LAY-user-front-search)', function (data) {
+            var field = data.field;
+
+            //执行重载
+            table.reload('maclist', {
+                where: field
+            });
+        });
+
+        var macUrl = '../dist/Handler/MacHandler.ashx';
+
+        //监听工具条
+        table.on('tool(maclist)', function (obj) {
+            var data = obj.data;
+            if (obj.event === 'debug') {
+                //layer.confirm('确定删除此文章？', function (index) {
+                //    obj.del();
+                //    layer.close(index);
+                //});
+
+                admin.popup({
+                    title: '调试机器'
+                  , area: ['550px', '550px']
+                  , id: 'LAY-popup-content-debug'
+                  , success: function (layero, index) {
+                      view(this.id).render('macManager/macDebugForm', data).done(function () {
+                          form.render(null, 'layuiadmin-debug-form-list');
+
+                          //监听提交
+                          form.on('submit(layuiadmin-debug-form-submit)', function (data) {
+                              var field = data.field; //获取提交的字段
+                              //alert(JSON.stringify(field));
+                              field.action = "macDebug";
+                              $.post(macUrl, field, function (data) {
+                                  if (data != null) {
+                                      if (data.Success) {
+                                          layer.msg(data.Msg);
+                                          //table.reload('maclist');
+                                          layer.close(index); //执行关闭 
+                                      }
+                                      else {
+                                          layer.msg(data.Msg);
+                                      }
+                                  }
+                                  else {
+                                      layer.msg("操作失败：数据为空");
+                                  }
+                              }, "json");
+                          });
+                      });
+                  }
+                });
+            } else if (obj.event === 'edit') {
+                admin.popup({
+                    title: '编辑机器'
+                  , area: ['550px', '550px']
+                  , id: 'LAY-popup-content-edit'
+                  , success: function (layero, index) {
+                      view(this.id).render('macManager/macEditFrom', data).done(function () {
+                          form.render(null, 'layuiadmin-app-form-list');
+
+                          //监听提交
+                          form.on('submit(layuiadmin-app-form-submit)', function (data) {
+                              var field = data.field; //获取提交的字段
+                              //alert(JSON.stringify(field));
+                              field.action = "updateMacInfo";
+                              $.post(macUrl, field, function (data) {
+                                  if (data != null) {
+                                      if (data.Success) {
+                                          layer.msg(data.Msg);
+                                          table.reload('maclist');
+                                          layer.close(index); //执行关闭 
+                                      }
+                                      else {
+                                          layer.msg(data.Msg);
+                                      }
+                                  }
+                                  else {
+                                      layer.msg("操作失败：数据为空");
+                                  }
+                              }, "json");
+
+                              //
+                          });
+                      });
+                  }
+                });
+            }
+        });
+
+        var url = '../dist/Handler/managerDate.ashx';
+
+        //事件
+        var active = {
+            batchdel: function () {
+                var checkStatus = table.checkStatus('maclist')
+                , checkData = checkStatus.data; //得到选中的数据
+
+                if (checkData.length === 0) {
+                    return layer.msg('请选择数据');
+                }
+
+                layer.confirm('确定删除吗？', function (index) {
+                    var parms = {};
+                    parms.action = "deleteMac";
+                    parms.data = JSON.stringify(checkStatus.data);
+
+                    $.post(url, parms, function (data) {
+                        if (data != null) {
+                            if (data.Success) {
+                                layer.msg(data.Msg);
+                                table.reload('maclist');
+                            }
+                            else {
+                                layer.msg(data.Msg);
+                            }
+                        }
+                        else {
+                            layer.msg("操作失败：数据为空");
+                        }
+                    }, "json");
+                });
+            }
+          , add: function () {
+              admin.popup({
+                  title: '添加机器'
+                , area: ['500px', '450px']
+                , id: 'LAY-popup-user-add'
+                , success: function (layero, index) {
+                    view(this.id).render('macManager/macfrom').done(function () {
+                        form.render(null, 'layuiadmin-form-useradmin');
+
+                        //监听提交
+                        form.on('submit(LAY-user-front-submit)', function (data) {
+                            var parms = data.field;
+                            parms.action = "addMac";
+                            $.post(url, parms, function (data) {
+                                if (data != null) {
+                                    if (data.Success) {
+                                        layer.msg(data.Msg);
+                                        layer.close(index); //执行关闭
+
+                                        //执行重载
+                                        table.reload('maclist', {
+                                        });
+                                    }
+                                    else {
+                                        layer.msg("添加失败：" + data.Msg);
+                                    }
+                                }
+                                else {
+                                    layer.msg("添加失败：数据为空");
+                                }
+                            }, "json");
+                            return false;
+                        });
+                    });
+                }
+              });
+          }
+        };
+
+        layui.use('table', function () {
+            var tableUrl = '../dist/Handler/managerDate.ashx';
+            var table = layui.table;
+
+            var stateFlag = { 0: "正常", 1: "异常" }
+
+            table.render({
+                elem: '#maclist'
+                , url: tableUrl
+                , where: { action: 'GetMachine' }
+                , cols: [[
+                { type: 'checkbox' }
+                , { field: 'id', width: 80, title: 'ID', sort: true }
+                , { field: 'machineNum', title: '机器编号' }
+                , { field: 'address', title: '机器地址' }
+                , { field: 'time', title: '创建时间' }
+                , { field: 'biaoNum', title: '镖盒镖数' }
+                , {
+                    field: 'state', title: '状态', templet: function (d) {
+                        return stateFlag[d.state]
+                    }
+                }
+                , { field: 'description', title: '描述' }
+                , { title: '操作', width: 150, align: 'center', fixed: 'right', toolbar: '#table-content-list' }
+                ]]
+                , page: true
+            });
+        });
+
+        $('.layui-btn.layuiadmin-btn-useradmin').on('click', function () {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+    });
+</script>

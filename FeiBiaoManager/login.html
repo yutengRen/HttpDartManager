@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+     <meta http-equiv="X-UA-Compatible" content="chrome=1,IE=edge">
+    <meta charset="UTF-8">
+    <title>后台登录</title>
+    <meta name="renderer" content="webkit">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <!-- load css -->
+    <link rel="stylesheet" type="text/css" href="../common/layui/css/layui.css" media="all">
+    <link rel="stylesheet" type="text/css" href="css/login.css" media="all">
+</head>
+<body>
+    <div class="layui-canvs"></div>
+    <div class="layui-layout layui-layout-login layui-form">
+        <h1>
+            <strong>前台登录</strong>
+            <em>Login</em>
+        </h1>
+        <div class="layui-user-icon larry-login">
+            <input type="text" name="Account" lay-verify="required" maxlength="50" autocomplete="off" placeholder="账号" class="login_txtbx" />
+        </div>
+        <div class="layui-pwd-icon larry-login">
+            <input type="password" name="Pwd" lay-verify="required" maxlength="50" placeholder="密码" class="login_txtbx" />
+        </div>
+        <!--<div class="layui-val-icon larry-login">
+            <div class="layui-code-box">
+                <input type="text" id="code" name="code" placeholder="验证码" maxlength="4" class="login_txtbx">
+                <img src="images/verifyimg.png" alt="" class="verifyImg" id="verifyImg" onclick="javascript:this.src='xxx'+Math.random();">
+            </div>
+        </div>-->
+        <div class="layui-submit larry-login">
+            <input type="button" value="立即登陆" class="submit_btn" lay-submit="" lay-filter="btn_sub" id ="btn_sub"/>
+        </div>
+        <!--<div class="layui-login-text">
+            <p>© 2018 欧通宝 版权所有</p>
+
+        </div>-->
+    </div>
+    <script type="text/javascript" src="/common/layui/layui.js"></script>
+    <!--<script type="text/javascript" src="/js/login.js"></script>-->
+    <script type="text/javascript" src="/PageJs/SysConfig.js"></script>
+    <script type="text/javascript" src="/PageJs/Common.js"></script>
+
+    <script type="text/javascript">
+
+        layui.use(['jquery', 'form'], function () {
+            window.jQuery = window.$ = layui.jquery;
+            window.layer = layui.layer;
+            var form = layui.form();
+
+
+            $("body").keydown(function () {
+                if (event.keyCode == "13") {//keyCode=13是回车键
+                    $('#btn_sub').click();
+                }
+            });
+
+            //登录链接测试，使用时可删除
+            //监听提交
+            form.on('submit(btn_sub)', function (data) {
+                //编辑，包含新增修改
+                var parms = { action: "Login" };
+                ComMethod.AddGroupJson(parms, data.field);
+                if (parms == null) alert('参数为空');
+                $.post("Ajax/SysLoginData.ashx", parms, function (Data) {
+                    if (Data.Success) {
+                        layui.data('user', {
+                            key: 'username', value: Data.Username
+                        });
+                        window.location.href = "/index.html";
+                    }
+                    else {
+                        layer.msg("登录失败：" + Data.Msg);
+                    }
+                }, "json");
+                
+            });
+            return false;
+        });
+    </script>
+</body>
+</html>

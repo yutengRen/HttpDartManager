@@ -1,0 +1,81 @@
+﻿
+
+<div class="layui-form" lay-filter="layuiadmin-form-useradmin" style="padding: 20px 0 0 0;">
+    <div class="layui-form-item">
+        <label class="layui-form-label">请选择种类</label>
+        <div class="layui-input-block">
+            <select id="GoodsTypeIdss" name="GoodsTypeIdss" lay-filter="GoodsTypeIdss"></select>
+        </div>
+    </div>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">请选择游戏</label>
+        <div class="layui-input-block">
+            <input type="text" name="gamename" lay-verify="required" placeholder="请输入游戏名" autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    
+    <div class="layui-form-item">
+        <label class="layui-form-label"></label>
+        <div class="layui-input-inline">
+            <input type="button" lay-submit lay-filter="LAY-user-front-submit" value="确认" class="layui-btn">
+        </div>
+    </div>
+</div>
+
+<script>
+    layui.use(['form'], function () {
+        var $ = layui.$
+        , form = layui.form
+         , setter = layui.setter
+        , table = layui.table
+        , router = layui.router()
+        , search = router.search;
+        
+        var url = '../dist/Handler/managerDate.ashx';
+
+        
+
+        var LoadPage = function () {
+            var parms = { action: "GetType" };
+
+            $.post(url, parms, function (data) {
+                if (data != null) {
+                    if (data.Success) {
+
+                        var dataList = data.Result;
+                        for (var i = 0; i < dataList.length; i++) {
+                            $("#GoodsTypeIdss").append($("<option value=\"" + dataList[i].ID + "\">" + dataList[i].typeName + "</option>"));
+                        }
+
+                        form.render('select');//更新全部表单
+                    }
+                    else {
+                    }
+                }
+            }, "json");
+        }
+
+        LoadPage();
+
+        //监听提交
+        //form.on('submit(LAY-user-front-submit)', function (data) {
+        //    var parms = data.field;
+        //    parms.action = "addGameName";
+        //    $.post(url, parms, function (data) {
+        //        if (data != null) {
+        //            if (data.Success) {
+        //                layer.msg(data.Msg);
+        //            }
+        //            else {
+        //                layer.msg("添加失败：" + data.Msg);
+        //            }
+        //        }
+        //        else {
+        //            layer.msg("添加失败：数据为空");
+        //        }
+        //    }, "json");
+        //    return false;
+        //});
+    })
+</script>
